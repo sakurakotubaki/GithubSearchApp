@@ -8,11 +8,11 @@ class SearchPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = TextEditingController();
-    final githubSearch = ref.watch(githubSearchNotifierProvider);
+    final githubSearch = ref.watch(githubSearchViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('GitHub Search'),
+        title: const Text('GitHub Search!!!!'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -27,7 +27,7 @@ class SearchPage extends ConsumerWidget {
             ElevatedButton(
               onPressed: () async {
                 await ref
-                    .read(githubSearchNotifierProvider.notifier)
+                    .read(githubSearchViewModelProvider.notifier)
                     .searchRepositories(controller.text);
               },
               child: const Text('検索'),

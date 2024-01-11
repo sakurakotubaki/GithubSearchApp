@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:githubsearch_app/core/logger.dart';
 import 'package:githubsearch_app/data/api/dio.dart';
 import 'package:githubsearch_app/model/github_search_response.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'github_search.g.dart';
 
-final githubSearchProvier = Provider((ref) => GithubSearch());
+// final githubSearchProvier = Provider((ref) => GithubSearch());
+
+@Riverpod(keepAlive: true)
+GithubSearch githubSearch(GithubSearchRef ref) => GithubSearch();
 
 class GithubSearch extends DioClient {
   /// 検索のテスト用メソッド
