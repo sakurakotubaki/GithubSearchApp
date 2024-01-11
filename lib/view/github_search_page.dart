@@ -1,53 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:githubsearch_app/data/repository/github_search.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:githubsearch_app/view/github_search_view_model.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends ConsumerWidget {
   const SearchPage({super.key});
 
   @override
-  _SearchPageState createState() => _SearchPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController();
+    final githubSearch = ref.watch(githubSearchNotifierProvider);
 
-class _SearchPageState extends State<SearchPage> {
-  final _controller = TextEditingController();
-  final _githubSearch = GithubSearch();
-  List<dynamic> _repositories = []; // リポジトリのリストを保持する変数を追加
-
-  void _search() async {
-    var response = await _githubSearch.searchRepositories(_controller.text);
-    setState(() {
-      _repositories = response.data['items']; // レスポンスからリポジトリのリストを取得
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GitHub Search'),
+        title: const Text('GitHub Search'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
             TextField(
-              controller: _controller,
-              decoration: InputDecoration(
+              controller: controller,
+              decoration: const InputDecoration(
                 labelText: 'Enter repository name',
               ),
             ),
             ElevatedButton(
-              onPressed: _search,
-              child: Text('Search'),
+              onPressed: () async {
+                await ref
+                    .read(githubSearchNotifierProvider.notifier)
+                    .searchRepositories(controller.text);
+              },
+              child: const Text('検索'),
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: _repositories.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(_repositories[index]['name']), // リポジトリの名前を表示
-                  );
-                },
+              child: githubSearch.when(
+                data: (data) => ListView.builder(
+                  itemCount: data.items.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 20,
+                        backgroundImage:
+                            NetworkImage(data.items[index].owner.avatar_url),
+                      ), // ネストしたクラスのプロパティにアクセうする
+                      title: Text(data.items[index].name), // リポジトリの名前を表示
+                    );
+                  },
+                ),
+                loading: () => const Text('読み込み中...'),
+                error: (error, _) => Center(child: Text(error.toString())),
               ),
             ),
           ],
